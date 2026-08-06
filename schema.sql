@@ -39,6 +39,10 @@ create policy "Los usuarios pueden eliminar sus propios registros"
   on registros for delete
   using (auth.uid() = usuario_id);
 
+-- Estado del registro (pendiente/completado)
+alter table registros
+  add column if not exists estado text not null default 'completado';
+
 -- ============================================================
 -- Recordatorios por correo (un día antes de la fecha programada)
 -- ============================================================
