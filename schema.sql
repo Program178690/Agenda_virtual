@@ -38,3 +38,6 @@ create policy "Los usuarios pueden actualizar sus propios registros"
 create policy "Los usuarios pueden eliminar sus propios registros"
   on registros for delete
   using (auth.uid() = usuario_id);
+
+  alter table registros
+  add column if not exists estado text not null default 'completado';
