@@ -9,6 +9,7 @@ export default function Registros() {
     loading,
     error,
     crearRegistro,
+    actualizarRegistro,
     eliminarRegistro,
   } = useRegistros();
 
@@ -28,14 +29,24 @@ export default function Registros() {
     e.preventDefault();
     setSubmitting(true);
     try {
+      const hoy = new Date().toISOString().slice(0, 10);
+      const estado = form.fecha > hoy ? "pendiente" : "completado";
+
       await crearRegistro({
         ...form,
         valor: Number(form.valor),
+        estado,
       });
       setForm({ ...form, valor: "", notas: "" });
     } finally {
       setSubmitting(false);
     }
+  }
+
+  async function toggleEstado(registro) {
+    const nuevoEstado =
+      registro.estado === "pendiente" ? "completado" : "pendiente";
+    await actualizarRegistro(registro.id, { estado: nuevoEstado });
   }
 
   return (
@@ -106,20 +117,21 @@ export default function Registros() {
               <th className="px-4 py-2">Valor</th>
               <th className="px-4 py-2">Fecha</th>
               <th className="px-4 py-2">Notas</th>
+              <th className="px-4 py-2">Estado</th>
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={5} className="px-4 py-4 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-4 text-center text-slate-400">
                   Cargando...
                 </td>
               </tr>
             )}
             {!loading && registros.length === 0 && (
               <tr>
-                <td colSpan={5} className="px-4 py-4 text-center text-slate-400">
+                <td colSpan={6} className="px-4 py-4 text-center text-slate-400">
                   Todavía no hay registros. ¡Agrega el primero!
                 </td>
               </tr>
@@ -130,7 +142,24 @@ export default function Registros() {
                 <td className="px-4 py-2">{r.valor}</td>
                 <td className="px-4 py-2">{r.fecha}</td>
                 <td className="px-4 py-2 text-slate-500">{r.notas}</td>
-                <td className="px-4 py-2 text-right">
+                <td className="px-4 py-2">
+                  <span
+                    className={
+                      r.estado === "pendiente"
+                        ? "rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700"
+                        : "rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
+                    }
+                  >
+                    {r.estado === "pendiente" ? "Pendiente" : "Completado"}
+                  </span>
+                </td>
+                <td className="px-4 py-2 text-right space-x-3">
+                  <button
+                    onClick={() => toggleEstado(r)}
+                    className="text-blue-600 hover:underline"
+                  >
+                    {r.estado === "pendiente" ? "Marcar como hecho" : "Marcar pendiente"}
+                  </button>
                   <button
                     onClick={() => eliminarRegistro(r.id)}
                     className="text-red-500 hover:underline"
