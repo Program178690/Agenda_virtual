@@ -44,6 +44,8 @@ export default function Registros() {
         estado,
       });
       setForm({ ...form, valor: "", notas: "" });
+      } catch (err) {
+      alert("No se pudo guardar el registro: " + err.message);
     } finally {
       setSubmitting(false);
     }
@@ -52,7 +54,20 @@ export default function Registros() {
   async function toggleEstado(registro) {
     const nuevoEstado =
       registro.estado === "pendiente" ? "completado" : "pendiente";
-    await actualizarRegistro(registro.id, { estado: nuevoEstado });
+    try {
+      await actualizarRegistro(registro.id, { estado: nuevoEstado });
+    } catch (err) {
+      alert("No se pudo actualizar el estado: " + err.message);
+    }
+  }
+
+  async function handleEliminar(id) {
+    if (!confirm("¿Seguro que querés eliminar este registro?")) return;
+    try {
+      await eliminarRegistro(id);
+    } catch (err) {
+      alert("No se pudo eliminar el registro: " + err.message);
+    }
   }
 
   return (
@@ -193,7 +208,7 @@ export default function Registros() {
                     {r.estado === "pendiente" ? "Marcar como hecho" : "Marcar pendiente"}
                   </button>
                   <button
-                    onClick={() => eliminarRegistro(r.id)}
+                    onClick={() => handleEliminar(r.id)}
                     className="text-red-500 hover:underline"
                   >
                     Eliminar
