@@ -41,3 +41,7 @@ create policy "Los usuarios pueden eliminar sus propios registros"
 
   alter table registros
   add column if not exists estado text not null default 'completado';
+
+alter table registros
+  add column if not exists prioridad text not null default 'media';
+  

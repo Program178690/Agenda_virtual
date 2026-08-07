@@ -2,6 +2,11 @@ import { useState } from "react";
 import { useRegistros } from "../hooks/useRegistros";
 
 const TIPOS = ["ejercicio", "sueño", "alimentación", "estudio", "otro"];
+const PRIORIDADES = [
+  { valor: "baja", etiqueta: "Baja", color: "blue" },
+  { valor: "media", etiqueta: "Media", color: "green" },
+  { valor: "alta", etiqueta: "Alta", color: "red" },
+];
 
 export default function Registros() {
   const {
@@ -18,6 +23,7 @@ export default function Registros() {
     valor: "",
     fecha: new Date().toISOString().slice(0, 10),
     notas: "",
+   prioridad: "media",
   });
   const [submitting, setSubmitting] = useState(false);
 
@@ -89,6 +95,18 @@ export default function Registros() {
           onChange={handleChange}
           className="rounded-md border border-slate-300 px-2 py-2 text-sm"
         />
+        <select
+          name="prioridad"
+          value={form.prioridad} 
+          onChange={handleChange}
+          className="rounded-md border border-slate-300 px-2 py-2 text-sm"
+        >
+          {PRIORIDADES.map((p) => (
+            <option key={p.valor} value={p.valor}>
+              {p.etiqueta}
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           name="notas"
@@ -118,20 +136,21 @@ export default function Registros() {
               <th className="px-4 py-2">Fecha</th>
               <th className="px-4 py-2">Notas</th>
               <th className="px-4 py-2">Estado</th>
+              <th className="px-4 py-2">Prioridad</th>
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={6} className="px-4 py-4 text-center text-slate-400">
+                <td colSpan={7} className="px-4 py-4 text-center text-slate-400">
                   Cargando...
                 </td>
               </tr>
             )}
             {!loading && registros.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-4 text-center text-slate-400">
+                <td colSpan={7} className="px-4 py-4 text-center text-slate-400">
                   Todavía no hay registros. ¡Agrega el primero!
                 </td>
               </tr>
@@ -153,6 +172,19 @@ export default function Registros() {
                     {r.estado === "pendiente" ? "Pendiente" : "Completado"}
                   </span>
                 </td>
+                <td className="px-4 py-2">
+  <span
+    className={
+      r.prioridad === "alta"
+        ? "rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700"
+        : r.prioridad === "baja"
+        ? "rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
+        : "rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
+    }
+  >
+    {PRIORIDADES.find((p) => p.valor === r.prioridad)?.etiqueta ?? "Media"}
+  </span>
+</td>
                 <td className="px-4 py-2 text-right space-x-3">
                   <button
                     onClick={() => toggleEstado(r)}

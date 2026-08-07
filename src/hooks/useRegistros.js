@@ -29,14 +29,14 @@ export function useRegistros() {
     fetchRegistros();
   }, [fetchRegistros]);
 
-  async function crearRegistro({ tipo, valor, fecha, notas }) {
-    const { data, error } = await supabase
-      .from("registros")
-      .insert([{ usuario_id: user.id, tipo, valor, fecha, notas }])
-      .select();
-    if (error) throw error;
-    setRegistros((prev) => [data[0], ...prev]);
-  }
+  async function crearRegistro({ tipo, valor, fecha, notas, estado, prioridad }) {
+  const { data, error } = await supabase
+    .from("registros")
+    .insert([{ usuario_id: user.id, tipo, valor, fecha, notas, estado, prioridad }])
+    .select();
+  if (error) throw error;
+  setRegistros((prev) => [data[0], ...prev]);
+}
 
   async function actualizarRegistro(id, cambios) {
     const { data, error } = await supabase
