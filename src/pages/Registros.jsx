@@ -26,31 +26,55 @@ export default function Registros() {
    prioridad: "media",
   });
   const [submitting, setSubmitting] = useState(false);
-
+  const [editandoId, setEditandoId] = useState(null);
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+function handleEditarClick(registro) {
+    setForm({
+      tipo: registro.tipo,
+      valor: String(registro.valor),
+      fecha: registro.fecha,
+      notas: registro.notas ?? "",
+      prioridad: registro.prioridad ?? "media",
+    });
+    setEditandoId(registro.id);
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const hoy = new Date().toISOString().slice(0, 10);
-      const estado = form.fecha > hoy ? "pendiente" : "completado";
+      if (editandoId) {
+        await actualizarRegistro(editandoId, {
+          ...form,
+          valor: Number(form.valor),
+        });
+        setEditandoId(null);
+      } else {
+        const hoy = new Date().toISOString().slice(0, 10);
+        const estado = form.fecha > hoy ? "pendiente" : "completado";
 
-      await crearRegistro({
-        ...form,
-        valor: Number(form.valor),
-        estado,
+        await crearRegistro({
+          ...form,
+          valor: Number(form.valor),
+          estado,
+        });
+      }
+      setForm({
+        tipo: "ejercicio",
+        valor: "",
+        fecha: new Date().toISOString().slice(0, 10),
+        notas: "",
+        prioridad: "media",
       });
-      setForm({ ...form, valor: "", notas: "" });
-      } catch (err) {
+    } catch (err) {
       alert("No se pudo guardar el registro: " + err.message);
     } finally {
       setSubmitting(false);
     }
   }
-
   async function toggleEstado(registro) {
     const nuevoEstado =
       registro.estado === "pendiente" ? "completado" : "pendiente";
@@ -135,10 +159,27 @@ export default function Registros() {
           disabled={submitting}
           className="rounded-md bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-60"
         >
-          {submitting ? "Guardando..." : "Agregar"}
+          {submitting ? "Guardando..." : editandoId ? "Guardar cambios" : "Agregar"}
         </button>
+        {editandoId && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditandoId(null);
+              setForm({
+                tipo: "ejercicio",
+                valor: "",
+                fecha: new Date().toISOString().slice(0, 10),
+                notas: "",
+                prioridad: "media",
+              });
+            }}
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          >
+            Cancelar
+          </button>
+        )}
       </form>
-
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {/* Listado de registros */}
@@ -202,6 +243,12 @@ export default function Registros() {
 </td>
                 <td className="px-4 py-2 text-right space-x-3">
                   <button
+                    onClick={() => handleEditarClick(r)}
+                    className="text-slate-600 hover:underline"
+                  >
+                    Editar
+                  </button>
+                        <button
                     onClick={() => toggleEstado(r)}
                     className="text-blue-600 hover:underline"
                   >
