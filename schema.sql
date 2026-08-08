@@ -39,6 +39,7 @@ create policy "Los usuarios pueden eliminar sus propios registros"
   on registros for delete
   using (auth.uid() = usuario_id);
 
+
 -- ============================================================
 -- Recordatorios por correo (un día antes de la fecha programada)
 -- ============================================================
@@ -54,20 +55,24 @@ create extension if not exists pg_cron with schema extensions;
 create extension if not exists pg_net with schema extensions;
 
 -- Programar el job diario que llama a la Edge Function "send-reminders".
--- Reemplaza <PROJECT_REF> y <ANON_OR_SERVICE_KEY> por los valores de tu
--- proyecto (Project Settings > API en el dashboard de Supabase).
 -- Corre todos los días a las 9:00 UTC.
 select cron.schedule(
   'enviar-recordatorios-diarios',
   '0 9 * * *',
   $$
   select net.http_post(
-    url := 'https://<PROJECT_REF>.supabase.co/functions/v1/send-reminders',
+    url := 'https://yclzoqxtkdmobrohqnza.supabase.co/functions/v1/send-reminders',
     headers := jsonb_build_object(
       'Content-Type', 'application/json',
-      'Authorization', 'Bearer <ANON_OR_SERVICE_KEY>'
+      'Authorization', 'Bearer sb_publishable_zGtDc9JAH2u4uzyUtLwUvg_1FOowbLB'
     ),
     body := '{}'::jsonb
   );
   $$
 );
+
+-- ============================================================
+-- Estado de los registros (pendiente / completado)
+-- ============================================================
+alter table registros
+  add column if not exists estado text not null default 'completado';
