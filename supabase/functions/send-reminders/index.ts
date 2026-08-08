@@ -64,6 +64,7 @@ serve(async (_req) => {
       .from("registros")
       .select("id, usuario_id, tipo, valor, notas")
       .eq("fecha", fecha)
+      .eq("estado", "pendiente")
       .eq("recordatorio_enviado", false);
 
     if (fetchError) throw fetchError;
