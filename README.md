@@ -102,6 +102,31 @@ src/
 | fecha | date | Fecha del registro |
 | notas | text | Notas opcionales |
 
+## Recordatorios por correo
+
+La app envía un correo automático un día antes de la `fecha` de cada registro, usando una Supabase Edge Function (`supabase/functions/send-reminders`) programada con `pg_cron` (ver `schema.sql`) y [Resend](https://resend.com) para el envío.
+
+### Setup (una sola vez)
+
+1. Crear una cuenta gratis en [resend.com](https://resend.com) y generar una API key.
+2. Instalar el [Supabase CLI](https://supabase.com/docs/guides/cli) si no lo tienes, y hacer login:
+   ```bash
+   supabase login
+   supabase link --project-ref <tu-project-ref>
+   ```
+3. Configurar los secrets de la Edge Function (nunca van en el `.env` del frontend, porque esa API key no debe llegar al navegador):
+   ```bash
+   supabase secrets set RESEND_API_KEY=tu_api_key_de_resend
+   supabase secrets set REMINDER_FROM_EMAIL=onboarding@resend.dev
+   ```
+4. Desplegar la función:
+   ```bash
+   supabase functions deploy send-reminders
+   ```
+5. En el SQL Editor de Supabase, correr `schema.sql` (ya incluye la columna `recordatorio_enviado`, habilitar `pg_cron`/`pg_net`, y programar el job diario). Antes de correrlo, reemplaza `<PROJECT_REF>` y `<ANON_OR_SERVICE_KEY>` en el bloque `cron.schedule` con los valores de tu proyecto (Project Settings → API).
+
+Con esto, todos los días a las 9:00 UTC el cron llama a la función, que revisa qué registros tienen `fecha` = mañana y les manda el correo a cada usuario.
+
 ## Cronograma
 
 - **Semana 1:** Setup, esquema de base de datos, auth y CRUD básico
