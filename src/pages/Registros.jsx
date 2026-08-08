@@ -2,6 +2,11 @@ import { useState } from "react";
 import { useRegistros } from "../hooks/useRegistros";
 
 const TIPOS = ["ejercicio", "sueño", "alimentación", "estudio", "otro"];
+const PRIORIDADES = [
+  { valor: "baja", etiqueta: "Baja", color: "blue" },
+  { valor: "media", etiqueta: "Media", color: "green" },
+  { valor: "alta", etiqueta: "Alta", color: "red" },
+];
 
 export default function Registros() {
   const {
@@ -18,35 +23,75 @@ export default function Registros() {
     valor: "",
     fecha: new Date().toISOString().slice(0, 10),
     notas: "",
+   prioridad: "media",
   });
   const [submitting, setSubmitting] = useState(false);
-
+  const [editandoId, setEditandoId] = useState(null);
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
+  }
+
+function handleEditarClick(registro) {
+    setForm({
+      tipo: registro.tipo,
+      valor: String(registro.valor),
+      fecha: registro.fecha,
+      notas: registro.notas ?? "",
+      prioridad: registro.prioridad ?? "media",
+    });
+    setEditandoId(registro.id);
   }
 
   async function handleSubmit(e) {
     e.preventDefault();
     setSubmitting(true);
     try {
-      const hoy = new Date().toISOString().slice(0, 10);
-      const estado = form.fecha > hoy ? "pendiente" : "completado";
+      if (editandoId) {
+        await actualizarRegistro(editandoId, {
+          ...form,
+          valor: Number(form.valor),
+        });
+        setEditandoId(null);
+      } else {
+        const hoy = new Date().toISOString().slice(0, 10);
+        const estado = form.fecha > hoy ? "pendiente" : "completado";
 
-      await crearRegistro({
-        ...form,
-        valor: Number(form.valor),
-        estado,
+        await crearRegistro({
+          ...form,
+          valor: Number(form.valor),
+          estado,
+        });
+      }
+      setForm({
+        tipo: "ejercicio",
+        valor: "",
+        fecha: new Date().toISOString().slice(0, 10),
+        notas: "",
+        prioridad: "media",
       });
-      setForm({ ...form, valor: "", notas: "" });
+    } catch (err) {
+      alert("No se pudo guardar el registro: " + err.message);
     } finally {
       setSubmitting(false);
     }
   }
-
   async function toggleEstado(registro) {
     const nuevoEstado =
       registro.estado === "pendiente" ? "completado" : "pendiente";
-    await actualizarRegistro(registro.id, { estado: nuevoEstado });
+    try {
+      await actualizarRegistro(registro.id, { estado: nuevoEstado });
+    } catch (err) {
+      alert("No se pudo actualizar el estado: " + err.message);
+    }
+  }
+
+  async function handleEliminar(id) {
+    if (!confirm("¿Seguro que querés eliminar este registro?")) return;
+    try {
+      await eliminarRegistro(id);
+    } catch (err) {
+      alert("No se pudo eliminar el registro: " + err.message);
+    }
   }
 
   return (
@@ -89,6 +134,18 @@ export default function Registros() {
           onChange={handleChange}
           className="rounded-md border border-slate-300 px-2 py-2 text-sm"
         />
+        <select
+          name="prioridad"
+          value={form.prioridad} 
+          onChange={handleChange}
+          className="rounded-md border border-slate-300 px-2 py-2 text-sm"
+        >
+          {PRIORIDADES.map((p) => (
+            <option key={p.valor} value={p.valor}>
+              {p.etiqueta}
+            </option>
+          ))}
+        </select>
         <input
           type="text"
           name="notas"
@@ -102,10 +159,27 @@ export default function Registros() {
           disabled={submitting}
           className="rounded-md bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-60"
         >
-          {submitting ? "Guardando..." : "Agregar"}
+          {submitting ? "Guardando..." : editandoId ? "Guardar cambios" : "Agregar"}
         </button>
+        {editandoId && (
+          <button
+            type="button"
+            onClick={() => {
+              setEditandoId(null);
+              setForm({
+                tipo: "ejercicio",
+                valor: "",
+                fecha: new Date().toISOString().slice(0, 10),
+                notas: "",
+                prioridad: "media",
+              });
+            }}
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+          >
+            Cancelar
+          </button>
+        )}
       </form>
-
       {error && <p className="text-sm text-red-600">{error}</p>}
 
       {/* Listado de registros */}
@@ -118,20 +192,21 @@ export default function Registros() {
               <th className="px-4 py-2">Fecha</th>
               <th className="px-4 py-2">Notas</th>
               <th className="px-4 py-2">Estado</th>
+              <th className="px-4 py-2">Prioridad</th>
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
           <tbody>
             {loading && (
               <tr>
-                <td colSpan={6} className="px-4 py-4 text-center text-slate-400">
+                <td colSpan={7} className="px-4 py-4 text-center text-slate-400">
                   Cargando...
                 </td>
               </tr>
             )}
             {!loading && registros.length === 0 && (
               <tr>
-                <td colSpan={6} className="px-4 py-4 text-center text-slate-400">
+                <td colSpan={7} className="px-4 py-4 text-center text-slate-400">
                   Todavía no hay registros. ¡Agrega el primero!
                 </td>
               </tr>
@@ -153,15 +228,34 @@ export default function Registros() {
                     {r.estado === "pendiente" ? "Pendiente" : "Completado"}
                   </span>
                 </td>
+                <td className="px-4 py-2">
+  <span
+    className={
+      r.prioridad === "alta"
+        ? "rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700"
+        : r.prioridad === "baja"
+        ? "rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
+        : "rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
+    }
+  >
+    {PRIORIDADES.find((p) => p.valor === r.prioridad)?.etiqueta ?? "Media"}
+  </span>
+</td>
                 <td className="px-4 py-2 text-right space-x-3">
                   <button
+                    onClick={() => handleEditarClick(r)}
+                    className="text-slate-600 hover:underline"
+                  >
+                    Editar
+                  </button>
+                        <button
                     onClick={() => toggleEstado(r)}
                     className="text-blue-600 hover:underline"
                   >
                     {r.estado === "pendiente" ? "Marcar como hecho" : "Marcar pendiente"}
                   </button>
                   <button
-                    onClick={() => eliminarRegistro(r.id)}
+                    onClick={() => handleEliminar(r.id)}
                     className="text-red-500 hover:underline"
                   >
                     Eliminar
