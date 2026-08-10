@@ -1,3 +1,5 @@
+import StatCard from "../components/StatCard";
+
 import {
   BarChart,
   Bar,
@@ -58,39 +60,14 @@ export default function Dashboard() {
       <h1 className="text-xl font-semibold text-slate-800">Dashboard</h1>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-3">
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-slate-500">Total de registros</p>
-          <p className="text-2xl font-semibold text-brand-700">
-            {registros.length}
-          </p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-slate-500">Tipos distintos</p>
-          <p className="text-2xl font-semibold text-brand-700">
-            {Object.keys(totalesPorTipo).length}
-          </p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-slate-500">Último registro</p>
-          <p className="text-2xl font-semibold text-brand-700">
-            {registros[0]?.fecha ?? "—"}
-          </p>
-        </div>
+        <StatCard titulo="Total de registros" valor={registros.length} />
+        <StatCard titulo="Tipos distintos" valor={Object.keys(totalesPorTipo).length} />
+        <StatCard titulo="Último registro" valor={registros[0]?.fecha ?? "—"} />
       </div>
 
       <div className="grid grid-cols-1 gap-4 sm:grid-cols-2">
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-slate-500">Promedio</p>
-          <p className="text-2xl font-semibold text-brand-700">
-            {promedioValor}
-          </p>
-        </div>
-        <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-          <p className="text-sm text-slate-500">Más frecuente</p>
-          <p className="text-2xl font-semibold text-brand-700">
-            {tipoMasFrecuente}
-          </p>
-        </div>
+        <StatCard titulo="Promedio" valor={promedioValor} />
+        <StatCard titulo="Más frecuente" valor={tipoMasFrecuente} />
       </div>
 
       <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
