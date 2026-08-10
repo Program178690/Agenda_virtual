@@ -19,7 +19,6 @@ const localizer = dateFnsLocalizer({
 export default function Calendario() {
   const { registros, loading } = useRegistros();
 
-  // Convierte cada registro en un "evento" que el calendario pueda mostrar
   const eventos = registros.map((r) => ({
     id: r.id,
     title: `${r.tipo}: ${r.valor}`,
@@ -30,8 +29,8 @@ export default function Calendario() {
 
   return (
     <div className="space-y-4">
-      <h1 className="text-xl font-semibold text-slate-800">Calendario</h1>
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
+      <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100">Calendario</h1>
+      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900">
         {loading ? (
           <p className="text-slate-400">Cargando...</p>
         ) : (

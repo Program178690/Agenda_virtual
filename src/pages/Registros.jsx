@@ -23,15 +23,16 @@ export default function Registros() {
     valor: "",
     fecha: new Date().toISOString().slice(0, 10),
     notas: "",
-   prioridad: "media",
+    prioridad: "media",
   });
   const [submitting, setSubmitting] = useState(false);
   const [editandoId, setEditandoId] = useState(null);
+
   function handleChange(e) {
     setForm({ ...form, [e.target.name]: e.target.value });
   }
 
-function handleEditarClick(registro) {
+  function handleEditarClick(registro) {
     setForm({
       tipo: registro.tipo,
       valor: String(registro.valor),
@@ -75,6 +76,7 @@ function handleEditarClick(registro) {
       setSubmitting(false);
     }
   }
+
   async function toggleEstado(registro) {
     const nuevoEstado =
       registro.estado === "pendiente" ? "completado" : "pendiente";
@@ -96,20 +98,20 @@ function handleEditarClick(registro) {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-slate-800">
+      <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
         Mis registros
       </h1>
 
       {/* Formulario para crear un registro nuevo */}
       <form
         onSubmit={handleSubmit}
-        className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm sm:grid-cols-5"
+        className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:grid-cols-5"
       >
         <select
           name="tipo"
           value={form.tipo}
           onChange={handleChange}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm"
+          className="rounded-md border border-slate-300 px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
         >
           {TIPOS.map((t) => (
             <option key={t} value={t}>
@@ -124,7 +126,7 @@ function handleEditarClick(registro) {
           required
           value={form.valor}
           onChange={handleChange}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm"
+          className="rounded-md border border-slate-300 px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500"
         />
         <input
           type="date"
@@ -132,13 +134,13 @@ function handleEditarClick(registro) {
           required
           value={form.fecha}
           onChange={handleChange}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm"
+          className="rounded-md border border-slate-300 px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
         />
         <select
           name="prioridad"
-          value={form.prioridad} 
+          value={form.prioridad}
           onChange={handleChange}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm"
+          className="rounded-md border border-slate-300 px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
         >
           {PRIORIDADES.map((p) => (
             <option key={p.valor} value={p.valor}>
@@ -152,7 +154,7 @@ function handleEditarClick(registro) {
           placeholder="Notas (opcional)"
           value={form.notas}
           onChange={handleChange}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm sm:col-span-1"
+          className="rounded-md border border-slate-300 px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 sm:col-span-1"
         />
         <button
           type="submit"
@@ -174,18 +176,18 @@ function handleEditarClick(registro) {
                 prioridad: "media",
               });
             }}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50"
+            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
           >
             Cancelar
           </button>
         )}
       </form>
-      {error && <p className="text-sm text-red-600">{error}</p>}
+      {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
       {/* Listado de registros */}
-      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm">
+      <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <table className="w-full text-left text-sm">
-          <thead className="bg-slate-100 text-slate-600">
+          <thead className="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
             <tr>
               <th className="px-4 py-2">Tipo</th>
               <th className="px-4 py-2">Valor</th>
@@ -196,7 +198,7 @@ function handleEditarClick(registro) {
               <th className="px-4 py-2"></th>
             </tr>
           </thead>
-          <tbody>
+          <tbody className="dark:text-slate-100">
             {loading && (
               <tr>
                 <td colSpan={7} className="px-4 py-4 text-center text-slate-400">
@@ -212,51 +214,51 @@ function handleEditarClick(registro) {
               </tr>
             )}
             {registros.map((r) => (
-              <tr key={r.id} className="border-t border-slate-100">
+              <tr key={r.id} className="border-t border-slate-100 dark:border-slate-800">
                 <td className="px-4 py-2 capitalize">{r.tipo}</td>
                 <td className="px-4 py-2">{r.valor}</td>
                 <td className="px-4 py-2">{r.fecha}</td>
-                <td className="px-4 py-2 text-slate-500">{r.notas}</td>
+                <td className="px-4 py-2 text-slate-500 dark:text-slate-400">{r.notas}</td>
                 <td className="px-4 py-2">
                   <span
                     className={
                       r.estado === "pendiente"
-                        ? "rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700"
-                        : "rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
+                        ? "rounded-full bg-amber-100 px-2 py-1 text-xs font-medium text-amber-700 dark:bg-amber-900 dark:text-amber-300"
+                        : "rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300"
                     }
                   >
                     {r.estado === "pendiente" ? "Pendiente" : "Completado"}
                   </span>
                 </td>
                 <td className="px-4 py-2">
-  <span
-    className={
-      r.prioridad === "alta"
-        ? "rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700"
-        : r.prioridad === "baja"
-        ? "rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700"
-        : "rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700"
-    }
-  >
-    {PRIORIDADES.find((p) => p.valor === r.prioridad)?.etiqueta ?? "Media"}
-  </span>
-</td>
+                  <span
+                    className={
+                      r.prioridad === "alta"
+                        ? "rounded-full bg-red-100 px-2 py-1 text-xs font-medium text-red-700 dark:bg-red-900 dark:text-red-300"
+                        : r.prioridad === "baja"
+                        ? "rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-700 dark:bg-blue-900 dark:text-blue-300"
+                        : "rounded-full bg-green-100 px-2 py-1 text-xs font-medium text-green-700 dark:bg-green-900 dark:text-green-300"
+                    }
+                  >
+                    {PRIORIDADES.find((p) => p.valor === r.prioridad)?.etiqueta ?? "Media"}
+                  </span>
+                </td>
                 <td className="px-4 py-2 text-right space-x-3">
                   <button
                     onClick={() => handleEditarClick(r)}
-                    className="text-slate-600 hover:underline"
+                    className="text-slate-600 hover:underline dark:text-slate-300"
                   >
                     Editar
                   </button>
-                        <button
+                  <button
                     onClick={() => toggleEstado(r)}
-                    className="text-blue-600 hover:underline"
+                    className="text-blue-600 hover:underline dark:text-blue-400"
                   >
                     {r.estado === "pendiente" ? "Marcar como hecho" : "Marcar pendiente"}
                   </button>
                   <button
                     onClick={() => handleEliminar(r.id)}
-                    className="text-red-500 hover:underline"
+                    className="text-red-500 hover:underline dark:text-red-400"
                   >
                     Eliminar
                   </button>

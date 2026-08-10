@@ -5,3 +5,71 @@
 body {
   @apply bg-slate-50 text-slate-800;
 }
+
+.dark body {
+  @apply bg-slate-950 text-slate-100;
+}
+
+/* Corrige el autocompletado del navegador en modo oscuro */
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+  transition: background-color 5000s ease-in-out 0s;
+}
+
+.dark input:-webkit-autofill,
+.dark input:-webkit-autofill:hover,
+.dark input:-webkit-autofill:focus {
+  -webkit-box-shadow: 0 0 0px 1000px #1e293b inset !important;
+  -webkit-text-fill-color: #f1f5f9 !important;
+}
+
+/* Modo oscuro para react-big-calendar */
+.dark .rbc-calendar {
+  color: #f1f5f9;
+}
+
+.dark .rbc-header,
+.dark .rbc-month-view,
+.dark .rbc-time-view,
+.dark .rbc-agenda-view {
+  border-color: #334155;
+}
+
+.dark .rbc-day-bg {
+  background-color: #0f172a;
+}
+
+.dark .rbc-off-range-bg {
+  background-color: #020617;
+}
+
+.dark .rbc-today {
+  background-color: #1e3a5f;
+}
+
+.dark .rbc-header {
+  background-color: #1e293b;
+  color: #e2e8f0;
+}
+
+.dark .rbc-toolbar button {
+  color: #e2e8f0;
+  border-color: #475569;
+}
+
+.dark .rbc-toolbar button:hover,
+.dark .rbc-toolbar button.rbc-active {
+  background-color: #334155;
+  color: #f1f5f9;
+}
+
+.dark .rbc-off-range {
+  color: #64748b;
+}
+
+.dark .rbc-date-cell {
+  color: #e2e8f0;
+}
