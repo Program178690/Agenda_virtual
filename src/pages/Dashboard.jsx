@@ -1,16 +1,6 @@
 import StatCard from "../components/StatCard";
-
-import {
-  BarChart,
-  Bar,
-  LineChart,
-  Line,
-  XAxis,
-  YAxis,
-  CartesianGrid,
-  Tooltip,
-  ResponsiveContainer,
-} from "recharts";
+import GraficaBarras from "../components/GraficaBarras";
+import GraficaLinea from "../components/GraficaLinea";
 import { useRegistros } from "../hooks/useRegistros";
 
 export default function Dashboard() {
@@ -70,53 +60,8 @@ export default function Dashboard() {
         <StatCard titulo="Más frecuente" valor={tipoMasFrecuente} />
       </div>
 
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="mb-3 text-sm font-medium text-slate-600">
-          Total acumulado por tipo de actividad
-        </p>
-        {loading ? (
-          <p className="text-slate-400">Cargando...</p>
-        ) : dataGrafica.length === 0 ? (
-          <p className="text-slate-400">Aún no hay datos suficientes.</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <BarChart data={dataGrafica}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="tipo" />
-              <YAxis />
-              <Tooltip />
-              <Bar dataKey="total" fill="#3866d6" radius={[4, 4, 0, 0]} />
-            </BarChart>
-          </ResponsiveContainer>
-        )}
-      </div>
-
-      <div className="rounded-lg border border-slate-200 bg-white p-4 shadow-sm">
-        <p className="mb-3 text-sm font-medium text-slate-600">
-          Evolución en el tiempo
-        </p>
-        {loading ? (
-          <p className="text-slate-400">Cargando...</p>
-        ) : dataLinea.length === 0 ? (
-          <p className="text-slate-400">Aún no hay datos suficientes.</p>
-        ) : (
-          <ResponsiveContainer width="100%" height={300}>
-            <LineChart data={dataLinea}>
-              <CartesianGrid strokeDasharray="3 3" />
-              <XAxis dataKey="fecha" />
-              <YAxis />
-              <Tooltip />
-              <Line
-                type="monotone"
-                dataKey="total"
-                stroke="#3866d6"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
-            </LineChart>
-          </ResponsiveContainer>
-        )}
-      </div>
+      <GraficaBarras data={dataGrafica} loading={loading} />
+      <GraficaLinea data={dataLinea} loading={loading} />
     </div>
   );
 }
