@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { useRegistros } from "../hooks/useRegistros";
+import RegistroFormModal from "../components/RegistroFormModal";
 
-const TIPOS = ["ejercicio", "sueño", "alimentación", "estudio", "otro"];
 const PRIORIDADES = [
   { valor: "baja", etiqueta: "Baja", color: "blue" },
   { valor: "media", etiqueta: "Media", color: "green" },
@@ -18,58 +18,30 @@ export default function Registros() {
     eliminarRegistro,
   } = useRegistros();
 
-  const [form, setForm] = useState({
-    tipo: "ejercicio",
-    valor: "",
-    fecha: new Date().toISOString().slice(0, 10),
-    notas: "",
-    prioridad: "media",
-  });
+  const [modalAbierto, setModalAbierto] = useState(false);
+  const [registroEditando, setRegistroEditando] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-  const [editandoId, setEditandoId] = useState(null);
 
-  function handleChange(e) {
-    setForm({ ...form, [e.target.name]: e.target.value });
+  function handleNuevoClick() {
+    setRegistroEditando(null);
+    setModalAbierto(true);
   }
 
   function handleEditarClick(registro) {
-    setForm({
-      tipo: registro.tipo,
-      valor: String(registro.valor),
-      fecha: registro.fecha,
-      notas: registro.notas ?? "",
-      prioridad: registro.prioridad ?? "media",
-    });
-    setEditandoId(registro.id);
+    setRegistroEditando(registro);
+    setModalAbierto(true);
   }
 
-  async function handleSubmit(e) {
-    e.preventDefault();
+  async function handleGuardar(datos) {
     setSubmitting(true);
     try {
-      if (editandoId) {
-        await actualizarRegistro(editandoId, {
-          ...form,
-          valor: Number(form.valor),
-        });
-        setEditandoId(null);
+      if (registroEditando) {
+        await actualizarRegistro(registroEditando.id, datos);
       } else {
-        const hoy = new Date().toISOString().slice(0, 10);
-        const estado = form.fecha > hoy ? "pendiente" : "completado";
-
-        await crearRegistro({
-          ...form,
-          valor: Number(form.valor),
-          estado,
-        });
+        await crearRegistro(datos);
       }
-      setForm({
-        tipo: "ejercicio",
-        valor: "",
-        fecha: new Date().toISOString().slice(0, 10),
-        notas: "",
-        prioridad: "media",
-      });
+      setModalAbierto(false);
+      setRegistroEditando(null);
     } catch (err) {
       alert("No se pudo guardar el registro: " + err.message);
     } finally {
@@ -98,93 +70,20 @@ export default function Registros() {
 
   return (
     <div className="space-y-6">
-      <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
-        Mis registros
-      </h1>
-
-      {/* Formulario para crear un registro nuevo */}
-      <form
-        onSubmit={handleSubmit}
-        className="grid grid-cols-1 gap-3 rounded-lg border border-slate-200 bg-white p-4 shadow-sm dark:border-slate-700 dark:bg-slate-900 sm:grid-cols-5"
-      >
-        <select
-          name="tipo"
-          value={form.tipo}
-          onChange={handleChange}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-        >
-          {TIPOS.map((t) => (
-            <option key={t} value={t}>
-              {t}
-            </option>
-          ))}
-        </select>
-        <input
-          type="number"
-          name="valor"
-          placeholder="Valor (ej. minutos)"
-          required
-          value={form.valor}
-          onChange={handleChange}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500"
-        />
-        <input
-          type="date"
-          name="fecha"
-          required
-          value={form.fecha}
-          onChange={handleChange}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-        />
-        <select
-          name="prioridad"
-          value={form.prioridad}
-          onChange={handleChange}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100"
-        >
-          {PRIORIDADES.map((p) => (
-            <option key={p.valor} value={p.valor}>
-              {p.etiqueta}
-            </option>
-          ))}
-        </select>
-        <input
-          type="text"
-          name="notas"
-          placeholder="Notas (opcional)"
-          value={form.notas}
-          onChange={handleChange}
-          className="rounded-md border border-slate-300 px-2 py-2 text-sm dark:border-slate-600 dark:bg-slate-800 dark:text-slate-100 dark:placeholder-slate-500 sm:col-span-1"
-        />
+      <div className="flex items-center justify-between">
+        <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
+          Mis registros
+        </h1>
         <button
-          type="submit"
-          disabled={submitting}
-          className="rounded-md bg-brand-500 px-3 py-2 text-sm font-medium text-white hover:bg-brand-600 disabled:opacity-60"
+          onClick={handleNuevoClick}
+          className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
         >
-          {submitting ? "Guardando..." : editandoId ? "Guardar cambios" : "Agregar"}
+          + Nuevo registro
         </button>
-        {editandoId && (
-          <button
-            type="button"
-            onClick={() => {
-              setEditandoId(null);
-              setForm({
-                tipo: "ejercicio",
-                valor: "",
-                fecha: new Date().toISOString().slice(0, 10),
-                notas: "",
-                prioridad: "media",
-              });
-            }}
-            className="rounded-md border border-slate-300 px-3 py-2 text-sm font-medium text-slate-600 hover:bg-slate-50 dark:border-slate-600 dark:text-slate-300 dark:hover:bg-slate-800"
-          >
-            Cancelar
-          </button>
-        )}
-      </form>
+      </div>
+
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
 
-      {/* Listado de registros */}
       <div className="overflow-hidden rounded-lg border border-slate-200 bg-white shadow-sm dark:border-slate-700 dark:bg-slate-900">
         <table className="w-full text-left text-sm">
           <thead className="bg-slate-100 text-slate-600 dark:bg-slate-800 dark:text-slate-300">
@@ -268,6 +167,17 @@ export default function Registros() {
           </tbody>
         </table>
       </div>
+
+      <RegistroFormModal
+        isOpen={modalAbierto}
+        onClose={() => {
+          setModalAbierto(false);
+          setRegistroEditando(null);
+        }}
+        onGuardar={handleGuardar}
+        registroInicial={registroEditando}
+        submitting={submitting}
+      />
     </div>
   );
 }

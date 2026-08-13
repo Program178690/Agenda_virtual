@@ -77,3 +77,11 @@ select cron.schedule(
   );
   $$
 );
+
+-- Detalles específicos por tipo de registro (lectura, ejercicio, estudio)
+alter table registros
+  add column if not exists detalles jsonb not null default '{}'::jsonb;
+
+-- Evita valores negativos en el campo "valor" (minutos/páginas/etc.)
+alter table registros
+  add constraint valor_no_negativo check (valor >= 0);
