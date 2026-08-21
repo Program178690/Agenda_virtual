@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useRegistros } from "../hooks/useRegistros";
 import RegistroFormModal from "../components/RegistroFormModal";
+import ExportModal from "../components/ExportModal";
 
 const PRIORIDADES = [
   { valor: "baja", etiqueta: "Baja", color: "blue" },
@@ -21,7 +22,9 @@ export default function Registros() {
   const [modalAbierto, setModalAbierto] = useState(false);
   const [registroEditando, setRegistroEditando] = useState(null);
   const [submitting, setSubmitting] = useState(false);
-    const [filtroTipo, setFiltroTipo] = useState("todos");
+  const [exportModalAbierto, setExportModalAbierto] = useState(false);
+
+  const [filtroTipo, setFiltroTipo] = useState("todos");
   const [filtroEstado, setFiltroEstado] = useState("todos");
   const [filtroPrioridad, setFiltroPrioridad] = useState("todos");
 
@@ -71,7 +74,7 @@ export default function Registros() {
     }
   }
 
-    const tiposDisponibles = [...new Set(registros.map((r) => r.tipo))];
+  const tiposDisponibles = [...new Set(registros.map((r) => r.tipo))];
 
   const registrosFiltrados = registros.filter((r) => {
     const coincideTipo = filtroTipo === "todos" || r.tipo === filtroTipo;
@@ -87,16 +90,25 @@ export default function Registros() {
         <h1 className="text-xl font-semibold text-slate-800 dark:text-slate-100">
           Mis registros
         </h1>
-        <button
-          onClick={handleNuevoClick}
-          className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
-        >
-          + Nuevo registro
-        </button>
+        <div className="flex gap-2">
+          <button
+            onClick={() => setExportModalAbierto(true)}
+            className="rounded-md border border-slate-300 dark:border-slate-600 px-4 py-2 text-sm font-medium text-slate-600 dark:text-slate-300 hover:bg-slate-50 dark:hover:bg-slate-800"
+          >
+            Exportar PDF
+          </button>
+          <button
+            onClick={handleNuevoClick}
+            className="rounded-md bg-brand-500 px-4 py-2 text-sm font-medium text-white hover:bg-brand-600"
+          >
+            + Nuevo registro
+          </button>
+        </div>
       </div>
 
       {error && <p className="text-sm text-red-600 dark:text-red-400">{error}</p>}
-       <div className="flex flex-wrap gap-3">
+
+      <div className="flex flex-wrap gap-3">
         <select
           value={filtroTipo}
           onChange={(e) => setFiltroTipo(e.target.value)}
@@ -225,6 +237,12 @@ export default function Registros() {
         onGuardar={handleGuardar}
         registroInicial={registroEditando}
         submitting={submitting}
+      />
+
+      <ExportModal
+        isOpen={exportModalAbierto}
+        onClose={() => setExportModalAbierto(false)}
+        registros={registros}
       />
     </div>
   );
