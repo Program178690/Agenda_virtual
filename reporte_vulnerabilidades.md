@@ -2,6 +2,10 @@
 
 Documentación de la revisión de seguridad realizada sobre el proyecto, para incluir en el entregable final.
 
+## Actualización — tras agregar jspdf/html2canvas
+
+Al instalar `jspdf` y `html2canvas` (para la función de exportar registros a PDF), `npm audit` reportó temporalmente 5 vulnerabilidades (3 moderadas, 2 altas) — una vulnerabilidad alta nueva en `nanoid`. Se corrió `npm audit fix` (sin forzar), lo cual resolvió `nanoid` sin cambios disruptivos, dejando el conteo de vuelta en 4 vulnerabilidades (3 moderadas, 1 alta) — el mismo estado documentado abajo. Los cambios resultantes en `package.json`/`package-lock.json` se incluyeron en el commit correspondiente.
+
 ## `npm audit`
 
 Se ejecutó `npm audit` sobre el proyecto, encontrando 4 vulnerabilidades en dependencias (3 moderadas, 1 alta).
