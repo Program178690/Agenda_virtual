@@ -45,13 +45,15 @@ export default function RegistroFormModal({ isOpen, onClose, onGuardar, registro
     }
 
     const camposNumericos = campos.filter((c) => c.type === 'number');
-    const hayNegativo = camposNumericos.some((c) => {
+    const hayInvalido = camposNumericos.some((c) => {
       const val = detalles[c.key];
-      return val !== undefined && val !== '' && Number(val) < 0;
+      if (val === undefined || val === '') return false;
+      const num = Number(val);
+      return !Number.isFinite(num) || num < 0 || num > 999999;
     });
 
-    if (hayNegativo) {
-      setError('Los valores numéricos no pueden ser negativos');
+    if (hayInvalido) {
+      setError('Los valores numéricos deben ser razonables (sin notación científica ni negativos)');
       return;
     }
 
@@ -147,6 +149,11 @@ export default function RegistroFormModal({ isOpen, onClose, onGuardar, registro
                   min="0"
                   value={detalles[campo.key] ?? ''}
                   onChange={(e) => handleCampoChange(campo.key, e.target.value)}
+                  onKeyDown={(e) => {
+                    if (['e', 'E', '+', '-'].includes(e.key)) {
+                      e.preventDefault();
+                    }
+                  }}
                   className="w-full rounded-lg border border-slate-300 dark:border-slate-600 bg-white dark:bg-slate-700 px-3 py-2 text-slate-800 dark:text-slate-100"
                 />
               )}
