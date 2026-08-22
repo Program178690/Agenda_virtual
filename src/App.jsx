@@ -1,3 +1,4 @@
+import VinylButton from './components/VinylButton';
 import { Routes, Route } from "react-router-dom";
 import { ThemeProvider } from "./context/ThemeContext";
 import Layout from "./components/Layout";
@@ -11,6 +12,7 @@ import Calendario from "./pages/Calendario";
 export default function App() {
   return (
     <ThemeProvider>
+      <VinylButton />
       <Routes>
         <Route path="/login" element={<Login />} />
         <Route path="/registro" element={<Register />} />
